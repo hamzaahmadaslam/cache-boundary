@@ -1,7 +1,7 @@
 # cache-boundary
 
 Decides, route by route, whether a full-page cache may serve one anonymous visitor's copy of a page to everyone
-else; for anyone who runs WordPress, WooCommerce or another site behind a page cache.
+else. For anyone who runs WordPress, WooCommerce or another site behind a page cache.
 
 A page cache stores the HTML one visitor received and hands it to the next. When that page holds a nonce, a cart, a
 greeting or a session cookie, the next visitor gets the first visitor's copy: a stale form token at best, someone
@@ -22,8 +22,8 @@ URL is fetched twice and the two copies are compared. Every signal has a level.
 - `Set-Cookie` for a session, login, cart or unknown cookie. Cookies set by a CDN or load balancer, such as
   `__cf_bm` and `AWSALB`, are noted and ignored, and `--allow-cookie` adds your own harmless ones.
 - `Cache-Control` with `private`, `no-store` or `no-cache`; `Pragma: no-cache` without `Cache-Control`; `no-store` or
-  `private` in `Surrogate-Control` or `CDN-Cache-Control`; `no-cache` or `private` in `X-LiteSpeed-Cache-Control`;
-  `Vary: *`.
+  `private` in `Surrogate-Control`, `CDN-Cache-Control` or `Cloudflare-CDN-Cache-Control`; `no-cache` or `private` in
+  `X-LiteSpeed-Cache-Control`; `Vary: *`.
 - The WooCommerce Store API's `Cart-Token` and `Nonce` response headers.
 - A logged-in page: the `logged-in` or `admin-bar` body class, the `#wpadminbar` element, or a comment form that names
   the logged-in user.
@@ -117,15 +117,15 @@ cache-boundary --urls routes.txt --dry-run    # fetch and check in code; send no
 cache-boundary --urls routes.txt --json > report.json
 ```
 
-| Option                  | Default | What it does                                                                                                     |
-| ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
-| `--urls <file>`         |         | Read more URLs from a text file, one per line.                                                                   |
-| `--twice`               | off     | Fetch each URL twice and compare the copies. A token that changes means the page must not be shared.            |
-| `--allow-cookie <name>` |         | Treat a cookie as harmless. Repeat it for more; a trailing `*` matches a prefix.                                 |
-| `--threshold <p>`       | `0.8`   | Confidence needed to act on Jev's answers. Above 0.5, at most 1.                                                 |
-| `--timeout <seconds>`   | `10`    | Time limit for each request, to your site and to TypeSafe. TypeSafe's 429 and 529 answers are retried three times. |
-| `--json`                | off     | Print JSON: every route, its signals, the raw probabilities and the rules.                                       |
-| `--dry-run`             | off     | Fetch and check in code, then print the plan, one route's questions and the token estimate. Needs no key.        |
+| Option                  | Default | What it does                                                                                                                                    |
+| ----------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--urls <file>`         |         | Read more URLs from a text file, one per line.                                                                                                  |
+| `--twice`               | off     | Fetch each URL twice and compare the copies. A token that changes means the page must not be shared.                                            |
+| `--allow-cookie <name>` |         | Treat a cookie as harmless. Repeat it for more; a trailing `*` matches a prefix.                                                                |
+| `--threshold <p>`       | `0.8`   | Confidence needed to act on Jev's answers. Above 0.5, at most 1.                                                                                |
+| `--timeout <seconds>`   | `10`    | Time limit for each request, to your site and to TypeSafe. TypeSafe's 429 and 529 answers, timeouts and network errors are retried three times. |
+| `--json`                | off     | Print JSON: every route, its signals, the raw probabilities and the rules.                                                                      |
+| `--dry-run`             | off     | Fetch and check in code, then print the plan, one route's questions and the token estimate. Needs no key.                                       |
 
 Environment: `TYPESAFE_API_KEY` (needed unless `--dry-run`) and `TYPESAFE_MODEL` (default `jev-latest`).
 
@@ -258,7 +258,8 @@ request for each route that code did not decide:
 - with `--twice`, the names of the places where the two copies differed;
 - the fixed question text, the model name, and your API key in the `Authorization` header.
 
-Never sent: cookie values, token values, password fields, the host name, and anything about a route decided in code.
+Never sent: cookie values, token values (in the page's query string, a token's value is sent as `[value not shown]`),
+password fields, the host name, and anything about a route decided in code.
 The tool writes nothing to disk.
 
 ## Limits

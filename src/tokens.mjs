@@ -112,6 +112,13 @@ export function findTokens(page) {
   return list;
 }
 
+/** A URL path with the values of its token query parameters (such as _wpnonce) replaced, so they are never sent. */
+export function hideTokenValues(path) {
+  return String(path).replace(/([?&;])([^=&#;]+)=([^&#;]*)/g, (match, separator, name, value) =>
+    isTokenName(name) && tokenValue(value) ? `${separator}${name}=[value not shown]` : match,
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 // Two copies (--twice)
 
@@ -143,8 +150,8 @@ function randomStrings(html) {
 }
 
 /**
- * Compares the tokens of two copies of a page (marking each "same" or "changed") and lists the other random-looking
- * values of the first copy that the second one does not have: [{ label, token }].
+ * Compares the tokens of two copies of a page (marking each "same" or "changed") and counts, by where they sit, the
+ * other random-looking values of the first copy that the second one does not have: [{ label, token, count }].
  */
 export function compareCopies(first, second, tokens) {
   const again = findTokens(second);

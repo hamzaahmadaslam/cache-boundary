@@ -89,6 +89,13 @@ test("a request that takes too long stops with a plain timeout message", async (
   assert.equal(calls, 1);
 });
 
+test("an answer that is not JSON, or that holds no answers, stops the run with a plain message", async () => {
+  const gateway = async () => new Response("<html><body>Bad gateway</body></html>", { status: 200, headers: { "content-type": "text/html" } });
+  await assert.rejects(runChecks(plan, { apiKey: "test-key", fetchImpl: gateway }), jevError(200, "TypeSafe answered with something other than JSON."));
+  const empty = fixtureFetch(() => ({ model: "jev-1.13.0", answers: null, usage: {} }));
+  await assert.rejects(runChecks(plan, { apiKey: "test-key", fetchImpl: empty.fetchImpl }), jevError(200, "TypeSafe answered without answers."));
+});
+
 test("a malformed answer sends the route to review instead of guessing", async () => {
   const { fetchImpl } = fixtureFetch(() => ({ model: "jev-1.13.0", answers: { visitor_content: { type: "noul", noul: 0.1 } }, usage: {} }));
   const result = await runChecks(plan, { apiKey: "test-key", fetchImpl });

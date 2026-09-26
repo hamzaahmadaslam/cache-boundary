@@ -47,6 +47,13 @@ test("Set-Cookie names are sorted into blocking, vary and harmless cookies; --al
   assert.equal(signal(a, "set_cookie_other").text, "sets __cf_bm (set by Cloudflare)");
 });
 
+test("the headers check names each cookie once, and says \"only for\" only when every cookie is harmless", () => {
+  const headers = (setCookieNames) => analyze(route(page("<p>Hi</p>"), { setCookieNames })).checks.headers;
+  assert.equal(headers(["__cf_bm"]), "Set-Cookie only for __cf_bm (set by Cloudflare); no Cache-Control; no Vary");
+  assert.equal(headers(["pll_language", "__cf_bm", "pll_language"]), "Set-Cookie: pll_language, __cf_bm; no Cache-Control; no Vary");
+  assert.equal(headers([]), "no Set-Cookie; no Cache-Control; no Vary");
+});
+
 test("Cache-Control private, no-store or no-cache and Vary: * block; Vary: Cookie asks for a copy per cookie", () => {
   const headers = (extra) => ({ "content-type": "text/html", ...extra });
   const wordpress = analyze(
@@ -88,6 +95,7 @@ test("WooCommerce cart, checkout and account pages are found from body classes o
   assert.equal(kind(page("<p>x</p>", "page woocommerce-checkout woocommerce-order-received")).pageKind, "checkout");
   assert.equal(kind(page('<div class="wp-block-woocommerce-checkout"></div>')).text, "WooCommerce checkout page (block wp-block-woocommerce-checkout)");
   assert.equal(kind(page('<nav class="woocommerce-MyAccount-navigation"></nav>')).pageKind, "account");
+  assert.equal(kind(page('<div class="woocommerce-MyAccount-content"></div>')).text, "WooCommerce account page (class woocommerce-MyAccount-content)");
   assert.equal(kind(page('<form class="login"><input type="hidden" name="woocommerce-login-nonce" value="3fa81c07d2"></form>')).pageKind, "account");
   assert.equal(kind(page("<p>A blue hoodie</p>", "single-product woocommerce")), undefined);
 
@@ -101,6 +109,8 @@ test("WooCommerce cart, checkout and account pages are found from body classes o
   assert.equal(signal(empty, "cart_count_zero").level, "info");
   const listed = analyze(route(page('<li class="woocommerce-mini-cart-item mini_cart_item">Blue hoodie</li>')));
   assert.deepEqual(ids(listed, "block"), ["mini_cart_items"]);
+  const classic = analyze(route(page('<li class="mini_cart_item">Blue hoodie</li>')));
+  assert.equal(signal(classic, "mini_cart_items").text, "mini cart lists products (class mini_cart_item)");
 });
 
 test("tokens are found in forms, scripts, attributes, meta tags and links, and reported by name and shape only", () => {

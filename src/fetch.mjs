@@ -304,7 +304,6 @@ export async function fetchPage(start, options) {
       headers,
       setCookieNames,
       body: decodeBody(body, headers["content-type"]),
-      bytes: body.length,
       truncated: Boolean(response.truncated),
       redirects,
     };

@@ -39,7 +39,7 @@ Environment:
   TYPESAFE_MODEL         the model to use (default ${DEFAULT_MODEL})
 
 Exit codes: 0 no problem found, 1 a cache served a page it must not or a visitor without cookies got
-one visitor's page, 2 error.
+one visitor's page, 2 an error or no route could be checked.
 `;
 
 // A cookie name (RFC 6265 token characters, without *), optionally followed by one * that matches any ending.
@@ -97,7 +97,8 @@ function parseOptions(argv) {
 }
 
 /**
- * Runs the tool and returns the exit code: 0 no problem found, 1 at least one problem, 2 an error.
+ * Runs the tool and returns the exit code: 0 no problem found, 1 at least one problem, 2 an error or no route could
+ * be checked.
  * `io` can replace the environment, the output streams, the fetch used for TypeSafe, and the resolver, transport
  * and pause used for the site.
  */

@@ -1,7 +1,7 @@
 import "./helpers/no-network.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildRequest, clip, estimateTokens, questionsFor, TEXT_TOKEN_LIMIT } from "../src/questions.mjs";
+import { buildRequest, buildState, clip, estimateTokens, questionsFor, TEXT_TOKEN_LIMIT } from "../src/questions.mjs";
 import { analyze } from "../src/signals.mjs";
 
 const CONTACT = [
@@ -86,6 +86,18 @@ test("nothing secret reaches the state: no token, cookie or password values, no 
   for (const secret of ["a1b2c3d4e5", "hunter22", "robin@example.com", "hello@example.com", "example.com/contact"]) {
     assert.ok(!sent.includes(secret), `${secret} is not sent`);
   }
+  // A token or an email address in the query string of the page's path is replaced too; the rest of the path stays.
+  const preview = buildState(analyze({ ...saved, path: "/contact/?preview_nonce=a1b2c3d4e5&preview=true&from=robin@example.com" }));
+  assert.equal(preview.page.path, "/contact/?preview_nonce=[value not shown]&preview=true&from=[email address]");
+});
+
+test("the visible text keeps the body when the optional </head> is left out or a script holds \"<head>\"", () => {
+  const text = (body) => buildState(analyze({ ...saved, body })).page.text;
+  assert.equal(text("<html><head><title>Club</title><body><p>Welcome back, Robin.</p></body></html>"), "Welcome back, Robin.");
+  assert.equal(
+    text('<html><head><title>Club</title></head><body><p>Hello</p><script>var tpl = "<head>";</script><p>Welcome back, Robin.</p></body></html>'),
+    "Hello\nWelcome back, Robin.",
+  );
 });
 
 test("the question wording follows the input: fetched without cookies, saved without headers, fetched twice", () => {

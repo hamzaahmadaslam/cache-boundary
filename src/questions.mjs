@@ -3,7 +3,7 @@
 // and cookie values are never included, and email addresses are replaced before anything is sent.
 import { formLabel, redactEmails } from "./html.mjs";
 import { choice, noul } from "./jev.mjs";
-import { isTokenName, tokenShape } from "./tokens.mjs";
+import { hideTokenValues, isTokenName, tokenShape } from "./tokens.mjs";
 
 export const RULE_OPTIONS = ["cache", "cache_with_vary_on_cookie", "do_not_cache"];
 /** Visible text sent per page, at most: the start and the end of a longer page. */
@@ -75,7 +75,7 @@ export function buildState(analysis, { twice = false } = {}) {
   const { route, page } = analysis;
   const state = {
     page: {
-      ...(route.path ? { path: route.path } : {}),
+      ...(route.path ? { path: redactEmails(hideTokenValues(route.path)) } : {}),
       ...(route.status ? { status: route.status } : {}),
       title: redactEmails(page.title),
       body_classes: page.bodyClasses.join(" ").slice(0, 1000),

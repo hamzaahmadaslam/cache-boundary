@@ -194,20 +194,30 @@ const BLOCK_TAGS = new Set(
   ),
 );
 
+/**
+ * Removes the head. Its end tag is optional: without </head>, the head ends where <body> starts. Runs after scripts are
+ * removed, so a "<head>" written inside a script is never taken for a head that runs to the end of the page.
+ */
+function removeHead(html) {
+  const lower = asciiLower(html);
+  let out = "";
+  let last = 0;
+  for (const el of elements(html, "head", lower)) {
+    out += html.slice(last, el.start);
+    last = el.end;
+    if (el.contentEnd === html.length) {
+      const body = lower.slice(el.contentStart).search(/<body[\s/>]/);
+      if (body >= 0) last = el.contentStart + body;
+    }
+  }
+  return out + html.slice(last);
+}
+
 /** The text a reader sees: no head, scripts, styles, templates, SVG or comments; one line per block element. */
 export function visibleText(html) {
-  const cleaned = removeElements(removeComments(html), [
-    "head",
-    "script",
-    "style",
-    "noscript",
-    "template",
-    "svg",
-    "math",
-    "iframe",
-    "object",
-    "canvas",
-  ]).replace(/<![^>]*>/g, " ");
+  const cleaned = removeHead(
+    removeElements(removeComments(html), ["script", "style", "noscript", "template", "svg", "math", "iframe", "object", "canvas"]),
+  ).replace(/<![^>]*>/g, " ");
   let out = "";
   let last = 0;
   for (const tag of tags(cleaned)) {

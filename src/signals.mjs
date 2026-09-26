@@ -250,9 +250,8 @@ function wooPage(page) {
   if (has("wc-empty-cart-message") || has("cart-empty")) return { kind: "cart", marker: "empty cart message" };
   if (has("wp-block-woocommerce-checkout")) return { kind: "checkout", marker: "block wp-block-woocommerce-checkout" };
   if (page.forms.some((f) => /\bwoocommerce-checkout\b/.test(f.className))) return { kind: "checkout", marker: "checkout form" };
-  if (has("woocommerce-MyAccount-navigation") || has("woocommerce-MyAccount-content")) {
-    return { kind: "account", marker: "class woocommerce-MyAccount-navigation" };
-  }
+  const account = ["woocommerce-MyAccount-navigation", "woocommerce-MyAccount-content"].find(has);
+  if (account) return { kind: "account", marker: `class ${account}` };
   if (page.forms.some((f) => f.fields.some((field) => field.name === "woocommerce-login-nonce"))) {
     return { kind: "account", marker: "WooCommerce login form" };
   }
@@ -341,8 +340,9 @@ export function pageSignals(page, { fetched }) {
   }
   const woo = wooPage(page);
   if (woo) signals.push({ id: "woo_page", level: "block", text: `${PAGE_KINDS[woo.kind]} (${woo.marker})`, pageKind: woo.kind });
-  if (page.classes.has("woocommerce-mini-cart-item") || page.classes.has("mini_cart_item")) {
-    signals.push({ id: "mini_cart_items", level: "block", text: "mini cart lists products (class woocommerce-mini-cart-item)", ...leak });
+  const miniCartItem = ["woocommerce-mini-cart-item", "mini_cart_item"].find((name) => page.classes.has(name));
+  if (miniCartItem) {
+    signals.push({ id: "mini_cart_items", level: "block", text: `mini cart lists products (class ${miniCartItem})`, ...leak });
   }
   const counts = cartCounts(page.blanked);
   const full = counts.find((c) => c.count > 0);
@@ -449,12 +449,14 @@ export function isHtml(route) {
 function headerCheck(route, signals) {
   if (!route.hasHeaders) return "response headers not given";
   const h = route.headers;
-  const setCookie = signals.find((s) => s.id === "set_cookie_other");
-  const cookies = route.setCookieNames.length
-    ? setCookie
-      ? `Set-Cookie only for ${setCookie.cookies.map((c) => `${c.rule} (${c.what})`).join(", ")}`
-      : `Set-Cookie: ${route.setCookieNames.join(", ")}`
-    : "no Set-Cookie";
+  const names = [...new Set(route.setCookieNames)];
+  const harmless = signals.find((s) => s.id === "set_cookie_other");
+  // "only for" holds when every cookie the response sets is a harmless one.
+  const cookies = !names.length
+    ? "no Set-Cookie"
+    : harmless?.cookies.length === names.length
+      ? `Set-Cookie only for ${[...new Set(harmless.cookies.map((c) => `${c.rule} (${c.what})`))].join(", ")}`
+      : `Set-Cookie: ${names.join(", ")}`;
   return [cookies, h["cache-control"] ? `Cache-Control: ${h["cache-control"]}` : "no Cache-Control", h.vary ? `Vary: ${h.vary}` : "no Vary"].join("; ");
 }
 
@@ -485,8 +487,8 @@ function twiceCheck(changed) {
 
 /**
  * Runs every check on one loaded route and returns what the rest of the tool needs:
- * { route, status: "checked" | "not_checked", reason?, html, page, signals, tokens, changed, facts, pageKind,
- *   servedFromCache, checks }.
+ * { route, status: "checked" | "not_checked", reason?, html, page, signals, tokens, changed, compared, facts,
+ *   pageKind, servedFromCache, checks }.
  */
 export function analyze(route, { allowCookies = [] } = {}) {
   if (route.error) return { route, status: "not_checked", reason: route.error };
@@ -559,4 +561,3 @@ export function analyze(route, { allowCookies = [] } = {}) {
     checks,
   };
 }
-

@@ -109,7 +109,8 @@ const VERDICT_KEYS = { "do-not-cache": "do_not_cache", vary: "vary", cache: "cac
 /**
  * Sends the planned requests (four at a time) and returns
  * { model, threshold, results: [{ analysis, verdict, decidedBy, reasons, answer, problems }], summary, usage, rules }.
- * Any TypeSafe error (missing key, 401, 422, 429 or 529 after retries, timeout) stops the run with a JevError.
+ * Any TypeSafe error (missing key, 401, 422, an answer that is not JSON, or 429, 529, a timeout or a network error
+ * after the retries) stops the run with a JevError.
  */
 export async function runChecks(plan, options = {}) {
   const {

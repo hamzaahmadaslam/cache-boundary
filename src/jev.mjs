@@ -1,4 +1,5 @@
-// A small client for TypeSafe's System One API (Jev). Copy this file into a tool as src/jev.mjs.
+// A small client for TypeSafe's System One API (Jev). It depends on nothing else in this tool, so it can be copied
+// into another one.
 // API: POST https://api.typesafe.ai/v1/systemone  { model, state, questions }  -> { model, answers, usage }
 // The key comes from TYPESAFE_API_KEY and is only ever sent in the Authorization header.
 
@@ -16,9 +17,9 @@ export class JevError extends Error {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Asks Jev the `questions` about `state`. Retries 429 and 529 up to `retries` times with exponential backoff
- * (honouring retry-after), times out each attempt after `timeoutMs`, and throws a JevError with a plain message
- * otherwise. `fetchImpl` is injectable so tests never touch the network.
+ * Asks Jev the `questions` about `state`. Retries 429 and 529 answers (honouring retry-after), timeouts and network
+ * errors up to `retries` times with exponential backoff, times out each attempt after `timeoutMs`, and throws a
+ * JevError with a plain message otherwise. `fetchImpl` is injectable so tests never touch the network.
  */
 export async function askJev(state, questions, options = {}) {
   const {
@@ -49,8 +50,14 @@ export async function askJev(state, questions, options = {}) {
       throw new JevError(`Could not reach TypeSafe: ${error?.name === "TimeoutError" ? "timed out" : error?.message}`, 0);
     }
     if (res.ok) {
-      const data = await res.json();
-      if (!data || typeof data.answers !== "object") throw new JevError("TypeSafe answered without answers.", res.status);
+      let data;
+      try {
+        data = await res.json();
+      } catch (error) {
+        if (error?.name === "TimeoutError") throw new JevError("Could not reach TypeSafe: timed out", 0);
+        throw new JevError("TypeSafe answered with something other than JSON.", res.status);
+      }
+      if (!data?.answers || typeof data.answers !== "object") throw new JevError("TypeSafe answered without answers.", res.status);
       return data;
     }
     if ((res.status === 429 || res.status === 529) && attempt < retries) {
@@ -73,7 +80,7 @@ export async function askJev(state, questions, options = {}) {
   }
 }
 
-/** Question helpers (the shapes in reference/typesafe/api.md). */
+/** Question helpers: noul (a yes or no question), choice and score. */
 export const noul = (instructions, criteria) => ({ type: "noul", instructions, ...(criteria ? { criteria } : {}) });
 export const choice = (instructions, options) => ({ type: "choice", instructions, criteria: options });
 export const score = (instructions, levels) => ({ type: "score", instructions, criteria: levels });
