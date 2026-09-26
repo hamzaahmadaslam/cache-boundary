@@ -11,7 +11,7 @@ cache-boundary: 9 routes (9 saved responses)
   my-account.html (/my-account/)                        decided in code: do not cache (WooCommerce account page)
   shop.html (/shop/)                                    1 request, about 818 tokens; vary: currency switcher (class currency-switcher)
 
-6 requests to jev-latest, about 4,854 input tokens ($0.0002 at $0.042 per million)
+6 requests to jev-latest, about 4,854 input tokens
 
 Each request asks three questions about one route. For about.html (/about/):
   visitor_content (noul)

@@ -1,7 +1,7 @@
 // Formats results for people (the report, the dry run) and for programs (JSON). Every word printed comes from the
 // input (URLs, file names, header values, class names) or from the fixed text in this file; Jev returns only
 // probabilities. Token and cookie values are never printed.
-import { estimatePlan, PRICE_PER_MILLION } from "./check.mjs";
+import { estimatePlan } from "./check.mjs";
 import { BLOCK_ORDER, shortReason } from "./decide.mjs";
 import { tokenShape } from "./tokens.mjs";
 
@@ -36,14 +36,6 @@ const MAX_LINES = 6;
 const count = (n) => n.toLocaleString("en-US");
 const plural = (n, word) => `${count(n)} ${word}${n === 1 ? "" : "s"}`;
 const p2 = (value) => value.toFixed(2);
-const round6 = (value) => Math.round(value * 1e6) / 1e6;
-
-/** Dollars, with enough decimals to show a cost that is usually a fraction of a cent. */
-export function money(cost) {
-  if (cost === 0) return "$0";
-  if (cost < 0.0001) return "under $0.0001";
-  return cost < 0.01 ? `$${cost.toFixed(4)}` : `$${cost.toFixed(2)}`;
-}
 
 /** What was checked: "5 URLs on example.com, fetched twice each; 4 saved responses". */
 function scope(routes, twice) {
@@ -139,12 +131,11 @@ function formatRules(rules) {
 export function formatReport(result, meta) {
   const { summary, usage, threshold } = result;
   const routes = result.results.map((r) => r.analysis.route);
-  const cost = (usage.input_tokens * PRICE_PER_MILLION) / 1e6;
   const decided = summary.decided_in_code ? `; ${plural(summary.decided_in_code, "route")} decided in code` : "";
   const lines = [
     `cache-boundary: ${scope(routes, meta.twice)}`,
     usage.requests
-      ? `Model ${result.model}, ${plural(usage.requests, "request")}, ${count(usage.input_tokens)} input tokens (${cost < 0.0001 ? money(cost) : `about ${money(cost)}`}), threshold ${threshold}${decided}`
+      ? `Model ${result.model}, ${plural(usage.requests, "request")}, ${count(usage.input_tokens)} input tokens, threshold ${threshold}${decided}`
       : `No requests to TypeSafe, threshold ${threshold}${decided}`,
     "",
     [
@@ -218,7 +209,6 @@ function routeJson(result) {
 
 /** The report as JSON: every route, its verdict, the signals, the raw probabilities, and the rules. */
 export function toJson(result, meta) {
-  const cost = (result.usage.input_tokens * PRICE_PER_MILLION) / 1e6;
   return {
     tool: "cache-boundary",
     version: meta.version,
@@ -226,7 +216,7 @@ export function toJson(result, meta) {
     model: result.model,
     twice: meta.twice,
     summary: result.summary,
-    usage: { ...result.usage, estimated_cost_usd: round6(cost) },
+    usage: result.usage,
     routes: result.results.map(routeJson),
     rules: result.rules,
   };
@@ -254,8 +244,7 @@ export function formatDryRun(plan, meta) {
     `cache-boundary: ${scope(routes, meta.twice)}`,
     ...table(plan.entries.map(planLine), "  "),
     "",
-    `${plural(plan.requests.length, "request")} to ${meta.model}, about ${count(estimate.tokens)} input tokens ` +
-      `(${money(estimate.cost)} at $${PRICE_PER_MILLION} per million)`,
+    `${plural(plan.requests.length, "request")} to ${meta.model}, about ${count(estimate.tokens)} input tokens`,
   ];
   const example = plan.requests[0];
   if (example) {
@@ -285,7 +274,6 @@ export function dryRunJson(plan, meta) {
       not_checked: plan.entries.filter((e) => e.analysis.status !== "checked").length,
     },
     estimated_input_tokens: estimate.tokens,
-    estimated_cost_usd: round6(estimate.cost),
     routes: plan.entries.map((entry) => ({
       input: entry.analysis.route.input,
       path: entry.analysis.route.path ?? null,

@@ -76,6 +76,24 @@ test("--dry-run needs no key, sends nothing to TypeSafe, and prints every reques
   assert.equal(typesafe.calls.length, 0);
 });
 
+test("the report, the JSON and the dry run give token counts only: no dollar amount, no rate, no cost field", async () => {
+  const report = await run([SITE], { env: { TYPESAFE_API_KEY: KEY }, fetchImpl: exampleFetch().fetchImpl });
+  const json = await run([SITE, "--json"], { env: { TYPESAFE_API_KEY: KEY }, fetchImpl: exampleFetch().fetchImpl });
+  const dry = await run([SITE, "--dry-run"]);
+  const dryJson = await run([SITE, "--dry-run", "--json"]);
+  assert.match(report.stdout, /\nModel jev-1\.13\.0, 6 requests, 4,854 input tokens, threshold 0\.8; /);
+  assert.match(dry.stdout, /\n6 requests to jev-latest, about 4,854 input tokens\n/);
+  for (const output of [report, dry]) assert.doesNotMatch(output.stdout, /\$|per million|\bcost/i);
+  const data = JSON.parse(json.stdout);
+  const plan = JSON.parse(dryJson.stdout);
+  assert.deepEqual(data.usage, { requests: 6, input_tokens: 4854, output_tokens: 0 });
+  for (const key of [...Object.keys(data), ...Object.keys(plan), ...Object.keys(plan.requests[0])]) {
+    assert.doesNotMatch(key, /cost|usd|price/i);
+  }
+  const exported = [...Object.keys(await import("../src/check.mjs")), ...Object.keys(await import("../src/report.mjs"))];
+  assert.deepEqual(exported.filter((name) => /price|cost|money/i.test(name)), [], "no price constant and no money formatter");
+});
+
 test("fetched URLs: leaks and cached pages that must not be cached set exit code 1; --twice catches a changing nonce", async () => {
   const html = (body, bodyClass = "page", headers = {}) => ({
     headers: { "content-type": "text/html; charset=UTF-8", "cache-control": "public, max-age=300", ...headers },

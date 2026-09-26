@@ -8,8 +8,6 @@ import { buildRequest, REQUEST_BUDGET } from "./questions.mjs";
 import { analyze } from "./signals.mjs";
 
 export const DEFAULT_TIMEOUT_SECONDS = 10;
-/** US dollars per million input tokens for jev-1.13. Output tokens are free. */
-export const PRICE_PER_MILLION = 0.042;
 const CONCURRENCY = 4;
 
 async function fetchRoute(href, options) {
@@ -80,10 +78,10 @@ export function planChecks(routes, { allowCookies = [], model = DEFAULT_MODEL, t
   return { entries, requests: entries.filter((entry) => entry.request), model, twice };
 }
 
-/** Estimated input tokens and cost of a plan, for --dry-run. */
+/** Estimated input tokens of a plan, for --dry-run. */
 export function estimatePlan(plan) {
   const tokens = plan.requests.reduce((sum, entry) => sum + entry.request.tokens, 0);
-  return { tokens, cost: (tokens * PRICE_PER_MILLION) / 1e6 };
+  return { tokens };
 }
 
 /** Runs `worker` over `items` with at most `limit` at a time; stops starting new work after the first failure. */

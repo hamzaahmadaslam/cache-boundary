@@ -1,5 +1,5 @@
 cache-boundary: 9 routes (9 saved responses)
-Model jev-1.13.0, 6 requests, 4,854 input tokens (about $0.0002), threshold 0.8; 3 routes decided in code
+Model jev-1.13.0, 6 requests, 4,854 input tokens, threshold 0.8; 3 routes decided in code
 
 do not cache 4   vary 1   cache 2   review 2
 

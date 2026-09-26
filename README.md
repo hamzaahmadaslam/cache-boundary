@@ -157,7 +157,7 @@ network call.
 
 ```text
 cache-boundary: 9 routes (9 saved responses)
-Model jev-1.13.0, 6 requests, 4,854 input tokens (about $0.0002), threshold 0.8; 3 routes decided in code
+Model jev-1.13.0, 6 requests, 4,854 input tokens, threshold 0.8; 3 routes decided in code
 
 do not cache 4   vary 1   cache 2   review 2
 
@@ -280,20 +280,19 @@ The tool writes nothing to disk.
 - The tool reports and never changes your cache. Check a sample of verdicts on your own site before you rely on a
   threshold, and read the review list yourself.
 
-## Cost
+## Token use
 
-TypeSafe charges $0.042 per million input tokens for jev-1.13; output tokens are free. Routes decided in code cost
-nothing. The questions and page structure add about 750 tokens to each request. By the tool's own estimate (four
-characters per token for English text):
+Routes decided in code send nothing and use no tokens. Every other route is one request, and the questions and page
+structure add about 750 tokens to it. By the tool's own estimate (four characters per token for English text):
 
-| Run                                                         | Requests | Input tokens     | Cost          |
-| ----------------------------------------------------------- | -------- | ---------------- | ------------- |
-| The example: 9 saved pages, 3 decided in code               | 6        | about 4,900      | under $0.001  |
-| 50 routes with about 8,000 characters of visible text each  | 50       | about 137,000    | about $0.006  |
-| 500 such routes                                             | 500      | about 1,370,000  | about $0.06   |
+| Run                                                         | Requests | Input tokens     |
+| ----------------------------------------------------------- | -------- | ---------------- |
+| The example: 9 saved pages, 3 decided in code               | 6        | about 4,900      |
+| 50 routes with about 8,000 characters of visible text each  | 50       | about 137,000    |
+| 500 such routes                                             | 500      | about 1,370,000  |
 
-A page with 40,000 characters of text or more costs about 10,700 tokens, under $0.0005. `--dry-run` prints the
-estimate for your own routes before you spend anything.
+A page with 40,000 characters of text or more uses about 10,700 tokens. `--dry-run` prints the estimate for your own
+routes before anything is sent.
 
 ## License
 
