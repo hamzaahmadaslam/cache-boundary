@@ -1,0 +1,24 @@
+Dry run: nothing was sent to TypeSafe.
+
+cache-boundary: 9 routes (9 saved responses)
+  about.html (/about/)                                  1 request, about 712 tokens
+  blue-hoodie.html (/product/blue-hoodie/)              decided in code: do not cache (sets wp_woocommerce_session_* on a visit)
+  cart.html (/cart/)                                    decided in code: do not cache (WooCommerce cart page)
+  events.html (/workshops/)                             1 request, about 803 tokens
+  hello-world.html (/journal/how-we-pick-our-cotton/)   1 request, about 891 tokens
+  index.html (/)                                        1 request, about 829 tokens
+  members.html (/pattern-club/)                         1 request, about 801 tokens
+  my-account.html (/my-account/)                        decided in code: do not cache (WooCommerce account page)
+  shop.html (/shop/)                                    1 request, about 818 tokens; vary: currency switcher (class currency-switcher)
+
+6 requests to jev-latest, about 4,854 input tokens ($0.0002 at $0.042 per million)
+
+Each request asks three questions about one route. For about.html (/about/):
+  visitor_content (noul)
+    `page` is a web page saved from its server's response. `forms` holds the page's forms, and `tokens` the values in the page that look like nonces or tokens (their values are not shown). Does `page` show content meant for one particular visitor, such as a person's name, a cart with items, an order, an address or an account detail?
+  private_token (noul)
+    `page` is a web page saved from its server's response. `forms` holds the page's forms, and `tokens` the values in the page that look like nonces or tokens (their values are not shown). Does `page` hold a token or nonce that must not be shared between visitors, such as a session ID, a cart or login token, or a CSRF token or nonce that differs from one visitor to the next?
+  cache_rule (choice: cache, cache_with_vary_on_cookie, do_not_cache)
+    `page` is a web page saved from its server's response. `forms` holds the page's forms, and `tokens` the values in the page that look like nonces or tokens (their values are not shown). A full-page cache would store this copy of `page` and serve it to other visitors who are not logged in. Which rule should the cache follow for this page?
+
+Run with --dry-run --json to see every request body.

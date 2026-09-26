@@ -1,0 +1,40 @@
+{
+  "name": "cache-boundary",
+  "version": "1.0.0",
+  "description": "Decides route by route whether a full-page cache may serve one anonymous visitor's copy of a page to everyone, from response headers, WordPress and WooCommerce markers and TypeSafe's Jev model.",
+  "type": "module",
+  "bin": {
+    "cache-boundary": "bin/cache-boundary.mjs"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "cache",
+    "full-page-cache",
+    "page-cache",
+    "wordpress",
+    "woocommerce",
+    "nonce",
+    "performance",
+    "typesafe",
+    "jev"
+  ],
+  "author": "Hamza Ahmad Aslam (https://hamzaahmadaslam.com)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamzaahmadaslam/cache-boundary.git"
+  },
+  "homepage": "https://github.com/hamzaahmadaslam/cache-boundary#readme",
+  "bugs": {
+    "url": "https://github.com/hamzaahmadaslam/cache-boundary/issues"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "note": "Hand-written answers for the made-up pages in examples/site, keyed by each page's path. They were not produced by TypeSafe; they show the report format. The routes decided in code have no entry because nothing is sent for them.",
+  "model": "jev-1.13.0",
+  "answers": {
+    "/": { "visitor_content": 0.04, "private_token": 0.06, "cache_rule": { "cache": 0.95, "cache_with_vary_on_cookie": 0.03, "do_not_cache": 0.02 } },
+    "/journal/how-we-pick-our-cotton/": { "visitor_content": 0.03, "private_token": 0.04, "cache_rule": { "cache": 0.96, "cache_with_vary_on_cookie": 0.02, "do_not_cache": 0.02 } },
+    "/shop/": { "visitor_content": 0.06, "private_token": 0.05, "cache_rule": { "cache": 0.08, "cache_with_vary_on_cookie": 0.9, "do_not_cache": 0.02 } },
+    "/pattern-club/": { "visitor_content": 0.95, "private_token": 0.08, "cache_rule": { "cache": 0.05, "cache_with_vary_on_cookie": 0.02, "do_not_cache": 0.93 } },
+    "/workshops/": { "visitor_content": 0.46, "private_token": 0.05, "cache_rule": { "cache": 0.48, "cache_with_vary_on_cookie": 0.44, "do_not_cache": 0.08 } },
+    "/about/": { "visitor_content": 0.03, "private_token": 0.03, "cache_rule": { "cache": 0.96, "cache_with_vary_on_cookie": 0.02, "do_not_cache": 0.02 } }
+  }
+}

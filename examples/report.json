@@ -1,0 +1,454 @@
+{
+  "tool": "cache-boundary",
+  "version": "1.0.0",
+  "threshold": 0.8,
+  "model": "jev-1.13.0",
+  "twice": false,
+  "summary": {
+    "routes": 9,
+    "do_not_cache": 4,
+    "vary": 1,
+    "cache": 2,
+    "review": 2,
+    "not_checked": 0,
+    "decided_in_code": 3,
+    "problems": 0
+  },
+  "usage": {
+    "requests": 6,
+    "input_tokens": 4854,
+    "output_tokens": 0,
+    "estimated_cost_usd": 0.000204
+  },
+  "routes": [
+    {
+      "input": "about.html",
+      "kind": "saved",
+      "url": "https://example.com/about/",
+      "path": "/about/",
+      "status": null,
+      "verdict": "review",
+      "decided_by": "jev",
+      "reasons": [
+        "no_headers"
+      ],
+      "reason_text": [
+        "no response headers, so Set-Cookie, Cache-Control and Vary are unknown (save them with curl -D)"
+      ],
+      "signals": [],
+      "checks": {
+        "headers": "response headers not given",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.03,
+        "private_token": 0.03,
+        "cache_rule": {
+          "choice": "cache",
+          "confidence": 0.94,
+          "probabilities": {
+            "cache": 0.96,
+            "cache_with_vary_on_cookie": 0.02,
+            "do_not_cache": 0.02
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "blue-hoodie.html",
+      "kind": "saved",
+      "url": "https://example.com/product/blue-hoodie/",
+      "path": "/product/blue-hoodie/",
+      "status": 200,
+      "verdict": "do-not-cache",
+      "decided_by": "code",
+      "reasons": [],
+      "reason_text": [],
+      "signals": [
+        {
+          "id": "set_cookie",
+          "level": "block",
+          "text": "sets wp_woocommerce_session_* (WooCommerce session)"
+        }
+      ],
+      "checks": {
+        "headers": "Set-Cookie: wp_woocommerce_session_0f3c; Cache-Control: public, max-age=300; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": null,
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "cart.html",
+      "kind": "saved",
+      "url": "https://example.com/cart/",
+      "path": "/cart/",
+      "status": 200,
+      "verdict": "do-not-cache",
+      "decided_by": "code",
+      "reasons": [],
+      "reason_text": [],
+      "signals": [
+        {
+          "id": "cache_control",
+          "level": "block",
+          "text": "Cache-Control forbids a shared copy: no-cache, must-revalidate, max-age=0, no-store, private (the no-cache headers WordPress sends)"
+        },
+        {
+          "id": "woo_page",
+          "level": "block",
+          "text": "WooCommerce cart page (body class woocommerce-cart)"
+        },
+        {
+          "id": "tokens",
+          "level": "caution",
+          "text": "holds wc_cart_params.update_shipping_method_nonce (WooCommerce nonce), wc_cart_params.apply_coupon_nonce (WooCommerce nonce), wc_cart_params.remove_coupon_nonce (WooCommerce nonce), not compared (run with --twice to compare two requests); WordPress nonces stay valid for 12 to 24 hours, so a stored copy must expire within 12 hours"
+        }
+      ],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: no-cache, must-revalidate, max-age=0, no-store, private; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; a WooCommerce cart, checkout or account page; 3 tokens (not compared)"
+      },
+      "tokens": [
+        {
+          "name": "wc_cart_params.update_shipping_method_nonce",
+          "where": "inline script",
+          "kind": "WooCommerce nonce",
+          "shape": "10 hex characters",
+          "comparison": null
+        },
+        {
+          "name": "wc_cart_params.apply_coupon_nonce",
+          "where": "inline script",
+          "kind": "WooCommerce nonce",
+          "shape": "10 hex characters",
+          "comparison": null
+        },
+        {
+          "name": "wc_cart_params.remove_coupon_nonce",
+          "where": "inline script",
+          "kind": "WooCommerce nonce",
+          "shape": "10 hex characters",
+          "comparison": null
+        }
+      ],
+      "served_from_cache": null,
+      "answers": null,
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "events.html",
+      "kind": "saved",
+      "url": "https://example.com/workshops/",
+      "path": "/workshops/",
+      "status": 200,
+      "verdict": "review",
+      "decided_by": "jev",
+      "reasons": [
+        "unsure_visitor",
+        "unsure_rule"
+      ],
+      "reason_text": [
+        "unclear whether it shows one visitor's content",
+        "unclear which cache rule fits"
+      ],
+      "signals": [],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: public, max-age=300; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.46,
+        "private_token": 0.05,
+        "cache_rule": {
+          "choice": "cache",
+          "confidence": 0.22,
+          "probabilities": {
+            "cache": 0.48,
+            "cache_with_vary_on_cookie": 0.44,
+            "do_not_cache": 0.08
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "hello-world.html",
+      "kind": "saved",
+      "url": "https://example.com/journal/how-we-pick-our-cotton/",
+      "path": "/journal/how-we-pick-our-cotton/",
+      "status": 200,
+      "verdict": "cache",
+      "decided_by": "jev",
+      "reasons": [],
+      "reason_text": [],
+      "signals": [
+        {
+          "id": "comment_form",
+          "level": "info",
+          "text": "comment form: returning commenters get their name and email filled in (comment_author_* cookies)"
+        }
+      ],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: public, max-age=600; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.03,
+        "private_token": 0.04,
+        "cache_rule": {
+          "choice": "cache",
+          "confidence": 0.94,
+          "probabilities": {
+            "cache": 0.96,
+            "cache_with_vary_on_cookie": 0.02,
+            "do_not_cache": 0.02
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "index.html",
+      "kind": "saved",
+      "url": "https://example.com/",
+      "path": "/",
+      "status": 200,
+      "verdict": "cache",
+      "decided_by": "jev",
+      "reasons": [],
+      "reason_text": [],
+      "signals": [
+        {
+          "id": "cart_count_zero",
+          "level": "info",
+          "text": "mini cart shows 0 items (a.cart-contents .count)"
+        },
+        {
+          "id": "cart_fragments",
+          "level": "caution",
+          "text": "WooCommerce cart fragments (wc_cart_fragments_params) refresh the mini cart after the page loads: store only a copy with an empty cart"
+        }
+      ],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: public, max-age=600; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.04,
+        "private_token": 0.06,
+        "cache_rule": {
+          "choice": "cache",
+          "confidence": 0.92,
+          "probabilities": {
+            "cache": 0.95,
+            "cache_with_vary_on_cookie": 0.03,
+            "do_not_cache": 0.02
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "members.html",
+      "kind": "saved",
+      "url": "https://example.com/pattern-club/",
+      "path": "/pattern-club/",
+      "status": 200,
+      "verdict": "do-not-cache",
+      "decided_by": "jev",
+      "reasons": [
+        "visitor_content"
+      ],
+      "reason_text": [
+        "Jev: shows content for one visitor"
+      ],
+      "signals": [],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: public, max-age=300; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.95,
+        "private_token": 0.08,
+        "cache_rule": {
+          "choice": "do_not_cache",
+          "confidence": 0.9,
+          "probabilities": {
+            "cache": 0.05,
+            "cache_with_vary_on_cookie": 0.02,
+            "do_not_cache": 0.93
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "my-account.html",
+      "kind": "saved",
+      "url": "https://example.com/my-account/",
+      "path": "/my-account/",
+      "status": 200,
+      "verdict": "do-not-cache",
+      "decided_by": "code",
+      "reasons": [],
+      "reason_text": [],
+      "signals": [
+        {
+          "id": "cache_control",
+          "level": "block",
+          "text": "Cache-Control forbids a shared copy: no-cache, must-revalidate, max-age=0, no-store, private (the no-cache headers WordPress sends)"
+        },
+        {
+          "id": "woo_page",
+          "level": "block",
+          "text": "WooCommerce account page (body class woocommerce-account)"
+        },
+        {
+          "id": "tokens",
+          "level": "caution",
+          "text": "holds woocommerce-login-nonce (WooCommerce nonce), not compared (run with --twice to compare two requests); WordPress nonces stay valid for 12 to 24 hours, so a stored copy must expire within 12 hours"
+        }
+      ],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: no-cache, must-revalidate, max-age=0, no-store, private; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; a WooCommerce cart, checkout or account page; 1 token (not compared)"
+      },
+      "tokens": [
+        {
+          "name": "woocommerce-login-nonce",
+          "where": "form.woocommerce-form",
+          "kind": "WooCommerce nonce",
+          "shape": "10 hex characters",
+          "comparison": null
+        }
+      ],
+      "served_from_cache": null,
+      "answers": null,
+      "redirects": [],
+      "problems": []
+    },
+    {
+      "input": "shop.html",
+      "kind": "saved",
+      "url": "https://example.com/shop/",
+      "path": "/shop/",
+      "status": 200,
+      "verdict": "vary",
+      "decided_by": "code and jev",
+      "reasons": [
+        "rule_vary"
+      ],
+      "reason_text": [
+        "Jev: the page changes with a cookie"
+      ],
+      "signals": [
+        {
+          "id": "currency_switcher",
+          "level": "vary",
+          "text": "currency switcher (class currency-switcher)"
+        }
+      ],
+      "checks": {
+        "headers": "no Set-Cookie; Cache-Control: public, max-age=300; Vary: Accept-Encoding",
+        "page": "no login, admin bar or cart markers; no cart, checkout or account markers; no tokens"
+      },
+      "tokens": [],
+      "served_from_cache": null,
+      "answers": {
+        "visitor_content": 0.06,
+        "private_token": 0.05,
+        "cache_rule": {
+          "choice": "cache_with_vary_on_cookie",
+          "confidence": 0.85,
+          "probabilities": {
+            "cache": 0.08,
+            "cache_with_vary_on_cookie": 0.9,
+            "do_not_cache": 0.02
+          }
+        }
+      },
+      "redirects": [],
+      "problems": []
+    }
+  ],
+  "rules": {
+    "paths": [
+      {
+        "path": "/cart/",
+        "label": "cart.html",
+        "below": true,
+        "reason": "WooCommerce cart page"
+      },
+      {
+        "path": "/my-account/",
+        "label": "my-account.html",
+        "below": true,
+        "reason": "WooCommerce account page"
+      },
+      {
+        "path": "/pattern-club/",
+        "label": "members.html",
+        "below": false,
+        "reason": "Jev: shows content for one visitor"
+      },
+      {
+        "path": "/product/blue-hoodie/",
+        "label": "blue-hoodie.html",
+        "below": false,
+        "reason": "sets wp_woocommerce_session_* on a visit"
+      }
+    ],
+    "bypass": [
+      {
+        "cookie": "wordpress_logged_in_*",
+        "reason": "WordPress login"
+      },
+      {
+        "cookie": "wp_woocommerce_session_*",
+        "reason": "WooCommerce session"
+      },
+      {
+        "cookie": "woocommerce_items_in_cart",
+        "reason": "WooCommerce cart"
+      },
+      {
+        "cookie": "woocommerce_cart_hash",
+        "reason": "WooCommerce cart"
+      },
+      {
+        "cookie": "comment_author_*",
+        "reason": "comment forms fill in the commenter's name and email"
+      }
+    ],
+    "vary": [
+      {
+        "cookie": "the cookie your currency switcher sets",
+        "reason": "currency switcher",
+        "paths": [
+          "/shop/"
+        ]
+      }
+    ]
+  }
+}
